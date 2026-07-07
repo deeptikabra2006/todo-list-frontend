@@ -15,7 +15,7 @@ export default function Home() {
           Organize Your Life,<br />One Task at a Time
         </h1>
 
-        <p className="text-slate-550 dark:text-slate-400 mb-10 text-lg font-medium max-w-md mx-auto leading-relaxed">
+        <p className="text-slate-500 dark:text-slate-400 mb-10 text-lg font-medium max-w-md mx-auto leading-relaxed">
           TaskFlow helps you list, track, and complete your daily goals with a clean, focused, and intuitive dashboard.
         </p>
 

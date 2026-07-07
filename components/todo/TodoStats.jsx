@@ -76,8 +76,8 @@ export default function TodoStats() {
       <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl p-5 shadow-xs">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h4 className="text-sm font-black text-slate-800 dark:text-slate-150">Productivity Score</h4>
-            <p className="text-[11px] font-medium text-slate-450 dark:text-slate-400">Percentage of overall goals completed</p>
+            <h4 className="text-sm font-bold text-slate-900 dark:text-white">Productivity Score</h4>
+            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Percentage of overall goals completed</p>
           </div>
           <span className="text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-xl">
             {completionRate}% Completed

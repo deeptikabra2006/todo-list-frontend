@@ -88,10 +88,20 @@ export default function TodoCard({ todo, onEdit }) {
     );
 
     let updatedStatus = todo.status;
-    if (updatedSubtasks.every(s => s.completed) && totalSubtasks > 0 && todo.status !== "COMPLETED") {
-      updatedStatus = "COMPLETED";
-    } else if (updatedSubtasks.some(s => s.completed) && todo.status === "PENDING") {
-      updatedStatus = "IN_PROGRESS";
+    const completedSubtasks = updatedSubtasks.filter((s) => s.completed).length;
+
+    if (totalSubtasks > 0) {
+      if (completedSubtasks === totalSubtasks) {
+        updatedStatus = "COMPLETED";
+      } else if (completedSubtasks === 0) {
+        if (todo.status === "COMPLETED" || todo.status === "IN_PROGRESS") {
+          updatedStatus = "PENDING";
+        }
+      } else {
+        if (todo.status === "PENDING" || todo.status === "COMPLETED") {
+          updatedStatus = "IN_PROGRESS";
+        }
+      }
     }
 
     await editTodo(todo._id, {
@@ -110,11 +120,10 @@ export default function TodoCard({ todo, onEdit }) {
 
   return (
     <div
-      className={`bg-white dark:bg-slate-900 rounded-3xl shadow-sm border p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between ${
-        todo.status === "COMPLETED"
-          ? "border-slate-100 dark:border-slate-850 bg-slate-50/40 dark:bg-slate-950/20 opacity-70"
-          : "border-slate-100 dark:border-slate-800 hover:border-blue-100 dark:hover:border-blue-900/50"
-      }`}
+      className={`bg-white dark:bg-slate-900 rounded-3xl shadow-sm border p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between ${todo.status === "COMPLETED"
+        ? "border-slate-100 dark:border-slate-850 bg-slate-50/40 dark:bg-slate-950/20 opacity-70"
+        : "border-slate-100 dark:border-slate-800 hover:border-blue-100 dark:hover:border-blue-900/50"
+        }`}
     >
       <div>
         {/* Top Header Row */}
@@ -194,7 +203,7 @@ export default function TodoCard({ todo, onEdit }) {
                 {completedSubtasks}/{totalSubtasks} ({subtaskPercentage}%)
               </span>
             </div>
-            
+
             {/* Progress bar */}
             <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
               <div
@@ -216,7 +225,7 @@ export default function TodoCard({ todo, onEdit }) {
                     onChange={() => handleToggleSubtask(idx)}
                     className="w-3.5 h-3.5 rounded text-blue-600 dark:text-blue-500 border-slate-350 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-blue-500/10 cursor-pointer"
                   />
-                  <span className={sub.completed ? "line-through text-slate-400 dark:text-slate-550 font-medium" : ""}>
+                  <span className={sub.completed ? "line-through text-slate-400 dark:text-slate-500 font-medium" : ""}>
                     {sub.title}
                   </span>
                 </label>

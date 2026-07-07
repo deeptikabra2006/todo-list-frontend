@@ -93,7 +93,7 @@ export default function TodoForm({ onClose }) {
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-955 flex items-center justify-center text-blue-600 dark:text-blue-450 text-lg font-bold">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center text-blue-600 dark:text-blue-450 text-lg font-bold">
             ✍
           </div>
           <div>
@@ -250,7 +250,7 @@ export default function TodoForm({ onClose }) {
                 value={currentSubtask}
                 onChange={(e) => setCurrentSubtask(e.target.value)}
                 placeholder="Enter checklist item..."
-                className="flex-1 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-slate-955 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm focus:outline-none focus:border-blue-500 transition-all"
+                className="flex-1 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm focus:outline-none focus:border-blue-500 transition-all"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();

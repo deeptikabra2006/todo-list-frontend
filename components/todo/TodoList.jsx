@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import Loader from "@/components/common/Loader";
 import EmptyState from "./EmptyState";
@@ -9,8 +9,23 @@ import TodoEditModal from "./TodoEditModal";
 import useTodo from "@/hooks/useTodo";
 
 // Compact subtask and formatting helper component for Table Row
-function TodoRow({ todo, index, currentPage, itemsPerPage, onEdit, onDeleteClick, onStatusChange, onImageClick, onSubtaskToggle }) {
+function TodoRow({ todo, index, currentPage, itemsPerPage, onEdit, onDeleteClick, onStatusChange, onImageClick, onSubtaskToggle, totalRows }) {
   const [isChecklistOpen, setIsChecklistOpen] = useState(false);
+  const checklistRef = useRef(null);
+  const openUpward = index > 0 && index >= totalRows - 2;
+
+  useEffect(() => {
+    if (!isChecklistOpen) return;
+    const handleClickOutside = (event) => {
+      if (checklistRef.current && !checklistRef.current.contains(event.target)) {
+        setIsChecklistOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isChecklistOpen]);
   const priorityStyles = {
     HIGH: {
       bg: "bg-rose-50 dark:bg-rose-950/25 text-rose-650 dark:text-rose-400 border-rose-100 dark:border-rose-900/30",
@@ -18,7 +33,7 @@ function TodoRow({ todo, index, currentPage, itemsPerPage, onEdit, onDeleteClick
       label: "High"
     },
     MEDIUM: {
-      bg: "bg-amber-55 dark:bg-amber-950/25 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/30",
+      bg: "bg-amber-50 dark:bg-amber-950/25 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/30",
       dot: "bg-amber-500",
       label: "Medium"
     },
@@ -90,7 +105,7 @@ function TodoRow({ todo, index, currentPage, itemsPerPage, onEdit, onDeleteClick
         {todo.imageUrl ? (
           <div
             onClick={() => onImageClick && onImageClick(todo.imageUrl)}
-            className="relative w-9 h-9 mx-auto rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-955 border border-slate-100 dark:border-slate-800 shadow-sm shrink-0 cursor-zoom-in hover:scale-105 active:scale-95 transition-all duration-200"
+            className="relative w-9 h-9 mx-auto rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 shadow-sm shrink-0 cursor-zoom-in hover:scale-105 active:scale-95 transition-all duration-200"
             title="Click to view image"
           >
             <img
@@ -175,13 +190,13 @@ function TodoRow({ todo, index, currentPage, itemsPerPage, onEdit, onDeleteClick
         )}
       </td>
 
-      <td className="py-3 px-4 whitespace-nowrap relative">
+      <td className="py-3 px-4 whitespace-nowrap">
         {/* Checklist subtasks statistics */}
         {totalSubtasks > 0 ? (
-          <>
+          <div ref={checklistRef} className="relative inline-block">
             <div
               onClick={() => setIsChecklistOpen(!isChecklistOpen)}
-              className="space-y-1 w-20 cursor-pointer group/checklist select-none hover:opacity-80 transition-opacity"
+              className="space-y-1 w-24 cursor-pointer group/checklist select-none hover:opacity-80 transition-opacity"
               title="Click to view/toggle subtasks"
             >
               <div className="flex items-center justify-between text-[9px] font-bold text-slate-500 dark:text-slate-400 group-hover/checklist:text-blue-500 transition-colors">
@@ -198,60 +213,61 @@ function TodoRow({ todo, index, currentPage, itemsPerPage, onEdit, onDeleteClick
 
             {/* Checklist Dropdown Popover */}
             {isChecklistOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsChecklistOpen(false)}
-                />
-                <div className="absolute right-4 top-full mt-2.5 z-50 w-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-3 shadow-xl text-left select-none animate-scale-up">
-                  <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-100 dark:border-slate-800">
-                    <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                      Subtasks Checklist
-                    </h4>
-                    <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-950 px-1.5 py-0.5 rounded-full">
-                      {completedSubtasks}/{totalSubtasks} Done
-                    </span>
-                  </div>
-                  <div className="space-y-2.5 max-h-[160px] overflow-y-auto pr-1">
-                    {todo.subtasks.map((sub) => (
-                      <label
-                        key={sub._id}
-                        className="flex items-start gap-2.5 cursor-pointer text-xs group text-slate-700 dark:text-slate-350"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={sub.completed}
-                          onChange={() => onSubtaskToggle && onSubtaskToggle(todo._id, sub._id)}
-                          className="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500/20 cursor-pointer"
-                        />
-                        <span className={`leading-relaxed group-hover:text-slate-900 dark:group-hover:text-white transition-colors ${sub.completed ? "line-through text-slate-405 dark:text-slate-550" : ""}`}>
-                          {sub.title}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
+              <div className={`absolute left-1/2 -translate-x-1/2 z-50 w-52 bg-white/80 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-3 shadow-xl text-left select-none animate-scale-up ${openUpward ? "bottom-full mb-3" : "top-full mt-3"}`}>
+                {/* Tooltip Arrow pointing up or down to the center of the progress bar */}
+                {openUpward ? (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white/80 dark:bg-slate-900/85 border-b border-r border-slate-200/50 dark:border-slate-800/50 rotate-45 -translate-y-[6px]" />
+                ) : (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white/80 dark:bg-slate-900/85 border-t border-l border-slate-200/50 dark:border-slate-800/50 rotate-45 translate-y-[6px]" />
+                )}
+                
+                <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-100 dark:border-slate-800">
+                  <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    Subtasks Checklist
+                  </h4>
+                  <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-950 px-1.5 py-0.5 rounded-full">
+                    {completedSubtasks}/{totalSubtasks} Done
+                  </span>
                 </div>
-              </>
+                <div className="space-y-2.5 max-h-[160px] overflow-y-auto pr-1">
+                  {todo.subtasks.map((sub) => (
+                    <label
+                      key={sub._id}
+                      className="flex items-start gap-2.5 cursor-pointer text-xs group text-slate-700 dark:text-slate-350"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={sub.completed}
+                        onChange={() => onSubtaskToggle && onSubtaskToggle(todo._id, sub._id)}
+                        className="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500/20 cursor-pointer"
+                      />
+                      <span className={`leading-relaxed group-hover:text-slate-900 dark:group-hover:text-white transition-colors ${sub.completed ? "line-through text-slate-405 dark:text-slate-550" : ""}`}>
+                        {sub.title}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             )}
-          </>
+          </div>
         ) : (
           <span className="text-slate-300 dark:text-slate-700 text-[11px]">-</span>
         )}
       </td>
 
-      <td className="py-3 px-4 text-center whitespace-nowrap">
+      <td className="py-3 px-4 whitespace-nowrap">
         {/* Actions cells */}
-        <div className="inline-flex gap-1">
+        <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => onEdit(todo)}
-            className="p-1 rounded-lg text-xs font-bold bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+            className="p-1.5 rounded-xl text-xs font-bold bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
             title="Edit task"
           >
             ✏️
           </button>
           <button
             onClick={() => onDeleteClick(todo)}
-            className="p-1 rounded-lg text-xs font-bold bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-900 text-red-655 dark:text-red-400 border border-red-200/50 dark:border-red-900/30 transition cursor-pointer"
+            className="p-1.5 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 dark:hover:bg-rose-900 text-rose-650 dark:text-rose-400 border border-rose-200/50 dark:border-rose-900/30 transition cursor-pointer"
             title="Delete task"
           >
             🗑
@@ -259,6 +275,252 @@ function TodoRow({ todo, index, currentPage, itemsPerPage, onEdit, onDeleteClick
         </div>
       </td>
     </tr>
+  );
+}
+
+// Mobile-friendly card component for task list
+function TodoMobileRow({ todo, index, currentPage, itemsPerPage, onEdit, onDeleteClick, onStatusChange, onImageClick, onSubtaskToggle }) {
+  const [isChecklistOpen, setIsChecklistOpen] = useState(false);
+
+  const priorityStyles = {
+    HIGH: {
+      bg: "bg-rose-50 dark:bg-rose-950/25 text-rose-650 dark:text-rose-400 border-rose-100 dark:border-rose-900/30",
+      dot: "bg-rose-500",
+      label: "High"
+    },
+    MEDIUM: {
+      bg: "bg-amber-50 dark:bg-amber-950/25 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/30",
+      dot: "bg-amber-500",
+      label: "Medium"
+    },
+    LOW: {
+      bg: "bg-emerald-50 dark:bg-emerald-950/25 text-emerald-600 dark:text-emerald-450 border-emerald-100 dark:border-emerald-900/30",
+      dot: "bg-emerald-500",
+      label: "Low"
+    },
+  };
+
+  const statusStyles = {
+    PENDING: {
+      bg: "bg-amber-50/80 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/30",
+      label: "Pending"
+    },
+    IN_PROGRESS: {
+      bg: "bg-blue-50/80 dark:bg-blue-950/20 text-blue-700 dark:text-blue-450 border-blue-200 dark:border-blue-900/30",
+      label: "In Progress"
+    },
+    COMPLETED: {
+      bg: "bg-emerald-50/80 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/30",
+      label: "Completed"
+    }
+  };
+
+  const currentPriority = priorityStyles[todo.priority] || priorityStyles.MEDIUM;
+  const currentStatus = statusStyles[todo.status] || statusStyles.PENDING;
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const isOverdue = () => {
+    if (!todo.dueDate || todo.status === "COMPLETED") return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(todo.dueDate);
+    due.setHours(0, 0, 0, 0);
+    return due < today;
+  };
+
+  const totalSubtasks = todo.subtasks?.length || 0;
+  const completedSubtasks = todo.subtasks?.filter((s) => s.completed).length || 0;
+  const subtaskPercentage = totalSubtasks > 0 ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
+
+  const getParsedDescription = (desc) => {
+    if (!desc) return "";
+    return desc
+      .replace(/\*\*(.*?)\*\*/g, "$1")
+      .replace(/\*(.*?)\*/g, "$1")
+      .replace(/__(.*?)__/g, "$1")
+      .substring(0, 80) + (desc.length > 80 ? "..." : "");
+  };
+
+  return (
+    <div className="p-4 sm:p-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-all duration-200">
+      {/* Top row: Serial number, Priority badge, and Actions */}
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+            #{(currentPage - 1) * itemsPerPage + index + 1}
+          </span>
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-bold border ${currentPriority.bg}`}>
+            <span className={`w-1 h-1 rounded-full ${currentPriority.dot}`} />
+            {currentPriority.label}
+          </span>
+        </div>
+        {/* Actions with good mobile spacing */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onEdit(todo)}
+            className="w-8 h-8 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/80 transition active:scale-90 cursor-pointer"
+            title="Edit task"
+            suppressHydrationWarning
+          >
+            ✏️
+          </button>
+          <button
+            onClick={() => onDeleteClick(todo)}
+            className="w-8 h-8 rounded-xl flex items-center justify-center bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-450 border border-rose-100/50 dark:border-rose-900/30 transition active:scale-90 cursor-pointer"
+            title="Delete task"
+            suppressHydrationWarning
+          >
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      {/* Middle section: Image + Title/Desc */}
+      <div className="flex items-start gap-3.5 mb-4">
+        {/* Task Image */}
+        {todo.imageUrl ? (
+          <div
+            onClick={() => onImageClick && onImageClick(todo.imageUrl)}
+            className="relative w-12 h-12 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 shadow-sm shrink-0 cursor-zoom-in hover:scale-105 active:scale-95 transition-all duration-200"
+            title="Click to view image"
+          >
+            <img
+              src={todo.imageUrl}
+              alt="Task attachment"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800/80 flex items-center justify-center text-slate-350 dark:text-slate-650 text-sm font-black shrink-0">
+            🖼️
+          </div>
+        )}
+
+        {/* Title & Description */}
+        <div className="min-w-0 flex-1">
+          <h3 className={`font-black text-sm text-slate-900 dark:text-slate-100 leading-snug break-words ${todo.status === "COMPLETED" ? "line-through text-slate-400 dark:text-slate-550" : ""}`}>
+            {todo.title}
+          </h3>
+          {todo.description && (
+            <p className="text-[11px] text-slate-450 dark:text-slate-400 font-medium mt-1 break-words line-clamp-2">
+              {getParsedDescription(todo.description)}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom details layout */}
+      <div className="grid grid-cols-2 gap-3.5 pt-3 border-t border-slate-100/60 dark:border-slate-800/60">
+        {/* Due Date & Tags */}
+        <div className="space-y-1.5">
+          <div className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 dark:text-slate-500">
+            Due Date
+          </div>
+          <div className={`text-[11px] font-bold ${isOverdue() ? "text-rose-500 animate-pulse" : "text-slate-650 dark:text-slate-350"}`}>
+            {isOverdue() ? "⚠️ Overdue " : ""}
+            {formatDate(todo.dueDate)}
+          </div>
+        </div>
+
+        {/* Status Dropdown */}
+        <div className="space-y-1.5">
+          <div className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 dark:text-slate-500">
+            Status
+          </div>
+          <div className="relative w-full">
+            <select
+              value={todo.status}
+              onChange={(e) => onStatusChange(todo._id, e.target.value)}
+              className={`w-full text-[11px] font-bold px-2 py-1.5 rounded-lg border appearance-none pr-6 focus:outline-none focus:ring-1 focus:ring-blue-500/20 cursor-pointer transition-all duration-200 ${currentStatus.bg}`}
+            >
+              <option value="PENDING" className="bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-400 font-semibold">⏳ Pending</option>
+              <option value="IN_PROGRESS" className="bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 font-semibold">⚡ In Progress</option>
+              <option value="COMPLETED" className="bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 font-semibold">✅ Completed</option>
+            </select>
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[7px] text-slate-500 dark:text-slate-400">
+              ▼
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Tags and Checklist row */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-3.5 pt-3 border-t border-slate-100/60 dark:border-slate-800/60">
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1 items-center">
+          {todo.tags && todo.tags.length > 0 ? (
+            todo.tags.map((tag) => (
+              <span
+                key={tag}
+                className="bg-blue-50/50 dark:bg-blue-950/20 text-blue-650 dark:text-blue-400 border border-blue-100/50 dark:border-blue-900/30 px-1.5 py-0.5 rounded-md text-[9px] font-bold whitespace-nowrap"
+              >
+                {tag}
+              </span>
+            ))
+          ) : (
+            <span className="text-slate-350 dark:text-slate-655 text-[10px] font-bold">No Tags</span>
+          )}
+        </div>
+
+        {/* Subtask Checklist Progress */}
+        {totalSubtasks > 0 && (
+          <div className="w-full sm:w-auto flex items-center justify-end">
+            <button
+              onClick={() => setIsChecklistOpen(!isChecklistOpen)}
+              className="flex items-center justify-between w-full sm:w-28 bg-slate-50 dark:bg-slate-950 border border-slate-200/40 dark:border-slate-850 px-2.5 py-1.5 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+              suppressHydrationWarning
+            >
+              <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                Checklist ({completedSubtasks}/{totalSubtasks})
+              </span>
+              <span className="text-[8px] text-slate-450 dark:text-slate-500 ml-1.5">
+                {isChecklistOpen ? "▲" : "▼"}
+              </span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Expanded Checklist details */}
+      {isChecklistOpen && totalSubtasks > 0 && (
+        <div className="mt-3 p-3 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100 dark:border-slate-850/80 rounded-2xl animate-fadeIn">
+          <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-100 dark:border-slate-800">
+            <h4 className="text-[9px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Subtasks Checklist
+            </h4>
+            <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-900 px-1.5 py-0.5 rounded-full">
+              {subtaskPercentage}% Completed
+            </span>
+          </div>
+          <div className="space-y-2.5">
+            {todo.subtasks.map((sub) => (
+              <label
+                key={sub._id}
+                className="flex items-start gap-2.5 cursor-pointer text-xs group text-slate-700 dark:text-slate-350"
+              >
+                <input
+                  type="checkbox"
+                  checked={sub.completed}
+                  onChange={() => onSubtaskToggle && onSubtaskToggle(todo._id, sub._id)}
+                  className="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500/20 cursor-pointer"
+                />
+                <span className={`leading-relaxed group-hover:text-slate-900 dark:group-hover:text-white transition-colors ${sub.completed ? "line-through text-slate-405 dark:text-slate-550" : ""}`}>
+                  {sub.title}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -403,7 +665,33 @@ export default function TodoList() {
     const updatedSubtasks = todo.subtasks.map((sub) =>
       sub._id === subtaskId ? { ...sub, completed: !sub.completed } : sub
     );
-    await editTodo(todoId, { ...todo, subtasks: updatedSubtasks });
+
+    // Auto-update status based on subtasks completion percentage
+    let updatedStatus = todo.status;
+    const totalSubtasks = updatedSubtasks.length;
+    const completedSubtasks = updatedSubtasks.filter((s) => s.completed).length;
+
+    if (totalSubtasks > 0) {
+      if (completedSubtasks === totalSubtasks) {
+        updatedStatus = "COMPLETED";
+      } else if (completedSubtasks === 0) {
+        // If all subtasks are unchecked, revert from completed/in_progress to pending
+        if (todo.status === "COMPLETED" || todo.status === "IN_PROGRESS") {
+          updatedStatus = "PENDING";
+        }
+      } else {
+        // Some subtasks checked (between 1 and total - 1)
+        if (todo.status === "PENDING" || todo.status === "COMPLETED") {
+          updatedStatus = "IN_PROGRESS";
+        }
+      }
+    }
+
+    await editTodo(todoId, {
+      ...todo,
+      subtasks: updatedSubtasks,
+      status: updatedStatus,
+    });
   };
 
   if (loading && !todos.length) {
@@ -449,15 +737,16 @@ export default function TodoList() {
       {/* Main tasks list rendering in Table Rows & Columns */}
       {paginatedTodos.length > 0 ? (
         <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl overflow-hidden shadow-sm transition-all duration-300">
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[750px] table-fixed">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-950/40 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider select-none">
-                  <th className="py-3 px-4 w-[6%] text-slate-400 dark:text-slate-500 font-extrabold text-center">S.No.</th>
-                  <th className="py-3 px-4 w-[6%] text-slate-400 dark:text-slate-500 font-extrabold text-center">Image</th>
+                <tr className="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider select-none">
+                  <th className="py-3 px-4 w-[5%] text-slate-400 dark:text-slate-500 font-extrabold text-center">S.No.</th>
+                  <th className="py-3 px-4 w-[7%] text-slate-400 dark:text-slate-500 font-extrabold text-center">Image</th>
                   <th
                     onClick={() => handleHeaderSort("title")}
-                    className="py-3 px-4 w-[20%] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                    className="py-3 px-4 w-[18%] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
                   >
                     <div className="flex items-center gap-1">
                       Task
@@ -468,40 +757,40 @@ export default function TodoList() {
                   </th>
                   <th
                     onClick={() => handleHeaderSort("priority")}
-                    className="py-3 px-4 w-[12%] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                    className="py-3 px-4 w-[10%] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
                   >
                     <div className="flex items-center gap-1">
                       Priority
-                      <span className="text-[10px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-350 font-bold transition-colors">
+                      <span className="text-[10px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-355 font-bold transition-colors">
                         {getSortIcon("priority")}
                       </span>
                     </div>
                   </th>
                   <th
                     onClick={() => handleHeaderSort("dueDate")}
-                    className="py-3 px-4 w-[14%] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                    className="py-3 px-4 w-[12%] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
                   >
                     <div className="flex items-center gap-1">
                       Due Date
-                      <span className="text-[10px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-350 font-bold transition-colors">
+                      <span className="text-[10px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-355 font-bold transition-colors">
                         {getSortIcon("dueDate")}
                       </span>
                     </div>
                   </th>
                   <th
                     onClick={() => handleHeaderSort("status")}
-                    className="py-3 px-4 w-[16%] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+                    className="py-3 px-4 w-[14%] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
                   >
                     <div className="flex items-center gap-1">
                       Status
-                      <span className="text-[10px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-350 font-bold transition-colors">
+                      <span className="text-[10px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-355 font-bold transition-colors">
                         {getSortIcon("status")}
                       </span>
                     </div>
                   </th>
-                  <th className="py-3 px-4 w-[10%]">Tags</th>
-                  <th className="py-3 px-4 w-[10%]">Checklist</th>
-                  <th className="py-3 px-4 w-[6%] text-center">Actions</th>
+                  <th className="py-3 px-4 w-[12%]">Tags</th>
+                  <th className="py-3 px-4 w-[12%]">Checklist</th>
+                  <th className="py-3 px-4 w-[10%] text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -519,18 +808,39 @@ export default function TodoList() {
                     onImageClick={(image) => {
                       setLightboxImage(image);
                     }}
+                    totalRows={paginatedTodos.length}
                   />
                 ))}
               </tbody>
             </table>
           </div>
 
+          {/* Mobile Card List View */}
+          <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+            {paginatedTodos.map((todo, idx) => (
+              <TodoMobileRow
+                key={todo._id}
+                todo={todo}
+                index={idx}
+                currentPage={safeCurrentPage}
+                itemsPerPage={itemsPerPage}
+                onEdit={handleEditClick}
+                onDeleteClick={(t) => setDeletingTodo(t)}
+                onStatusChange={handleStatusChange}
+                onSubtaskToggle={handleSubtaskToggle}
+                onImageClick={(image) => {
+                  setLightboxImage(image);
+                }}
+              />
+            ))}
+          </div>
+
           {/* Pagination Controls */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 sm:p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
-             {/* Info label */}
-             <div className="text-xs text-slate-505 dark:text-slate-400 font-semibold text-center sm:text-left">
-               Total Tasks: <span className="text-slate-900 dark:text-white font-extrabold">{totalCount}</span>
-             </div>
+            {/* Info label */}
+            <div className="text-xs text-slate-505 dark:text-slate-400 font-semibold text-center sm:text-left">
+              Total Tasks: <span className="text-slate-900 dark:text-white font-extrabold">{totalCount}</span>
+            </div>
 
             {/* Pagination Controls & Items selector */}
             <div className="flex flex-wrap items-center gap-4">

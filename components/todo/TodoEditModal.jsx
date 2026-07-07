@@ -299,7 +299,7 @@ export default function TodoEditModal({ todo, isOpen, onClose, onSave }) {
               <button
                 type="button"
                 onClick={addTag}
-                className="px-4 py-2.5 bg-slate-800 dark:bg-slate-700 text-white dark:text-slate-200 rounded-xl text-sm font-bold hover:bg-slate-955 dark:hover:bg-slate-650 transition-all cursor-pointer"
+                className="px-4 py-2.5 bg-slate-800 dark:bg-slate-700 text-white dark:text-slate-200 rounded-xl text-sm font-bold hover:bg-slate-900 dark:hover:bg-slate-650 transition-all cursor-pointer"
               >
                 Add Tag
               </button>
@@ -341,12 +341,12 @@ export default function TodoEditModal({ todo, isOpen, onClose, onSave }) {
                   }
                 }}
                 placeholder="Add new subtask item..."
-                className="flex-1 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-955 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm focus:outline-none focus:border-blue-500 transition-all"
+                className="flex-1 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm focus:outline-none focus:border-blue-500 transition-all"
               />
               <button
                 type="button"
                 onClick={addSubtask}
-                className="px-4 py-2.5 bg-blue-600 dark:bg-blue-700 text-white rounded-xl text-sm font-bold hover:bg-blue-700 dark:hover:bg-blue-650 transition-all cursor-pointer"
+                className="px-4 py-2.5 bg-blue-600 dark:bg-blue-700 text-white rounded-xl text-sm font-bold hover:bg-blue-700 dark:hover:bg-blue-600 transition-all cursor-pointer"
               >
                 Add Subtask
               </button>

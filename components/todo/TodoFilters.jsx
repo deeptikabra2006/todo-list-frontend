@@ -146,7 +146,7 @@ export default function TodoFilters({
         <div className="mt-4 pt-4 border-t border-slate-105 dark:border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fadeIn">
           {/* Status Filter */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Filter by Status
             </label>
             <div className="relative">
@@ -169,7 +169,7 @@ export default function TodoFilters({
 
           {/* Priority Filter */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Filter by Priority
             </label>
             <div className="relative">
@@ -193,7 +193,7 @@ export default function TodoFilters({
           {/* Tags Chips Bar */}
           {availableTags.length > 0 && (
             <div className="sm:col-span-2 space-y-2 mt-2">
-              <label className="text-xs font-bold text-slate-550 dark:text-slate-405 uppercase tracking-wider block">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider block">
                 Filter by Tag
               </label>
               <div className="flex flex-wrap gap-2">

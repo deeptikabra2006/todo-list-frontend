@@ -129,7 +129,7 @@ export default function RegisterForm() {
 
           {/* Footer Link */}
           <div className="text-center mt-6">
-            <p className="text-sm text-slate-550 dark:text-slate-400 font-medium">
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
               Already have an account?{" "}
               <Link
                 href="/login"

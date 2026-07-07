@@ -175,7 +175,7 @@ export default function Dashboard() {
               Tasks past their due date
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-955/20 border border-rose-100/50 dark:border-rose-900/30 flex items-center justify-center text-xl">
+          <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-100/50 dark:border-rose-900/30 flex items-center justify-center text-xl">
             ⚠️
           </div>
         </div>
@@ -183,7 +183,7 @@ export default function Dashboard() {
 
       {/* Stacked Status Funnel */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-sm">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-550 mb-3">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">
           Task Status Funnel
         </p>
 
