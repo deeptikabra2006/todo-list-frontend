@@ -12,12 +12,13 @@ import {
 export default function useAuth() {
   const dispatch = useDispatch();
 
-  const { user, loading, error, isAuthenticated } = useSelector(
+  const { user, token, loading, error, isAuthenticated } = useSelector(
     (state) => state.auth,
   );
 
   return {
     user,
+    token,
     loading,
     error,
     isAuthenticated,

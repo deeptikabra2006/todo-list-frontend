@@ -8,6 +8,7 @@ import {
 
 const initialState = {
   user: null,
+  token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
   loading: false,
   error: null,
   isAuthenticated: false,
@@ -52,7 +53,11 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
+        state.token = action.payload.token;
         state.isAuthenticated = true;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", action.payload.token);
+        }
       })
 
       .addCase(loginUser.rejected, (state, action) => {
@@ -75,6 +80,7 @@ const authSlice = createSlice({
         // Token expired or invalid — clear everything
         state.loading = false;
         state.user = null;
+        state.token = null;
         state.isAuthenticated = false;
         if (typeof window !== "undefined") {
           localStorage.removeItem("token");
@@ -84,8 +90,12 @@ const authSlice = createSlice({
       // Logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
+        state.token = null;
         state.isAuthenticated = false;
         state.error = null;
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+        }
       });
   },
 });
