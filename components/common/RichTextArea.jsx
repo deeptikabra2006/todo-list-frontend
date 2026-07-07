@@ -30,6 +30,7 @@ export default function RichTextArea({
           placeholder={placeholder}
           rows={rows}
           required={required}
+          suppressHydrationWarning
           className={`
             w-full
             px-4

@@ -148,6 +148,7 @@ export default function Navbar() {
               onClick={toggleTheme}
               className="w-9 h-9 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-900/80 dark:hover:bg-slate-850 flex items-center justify-center text-base transition-all duration-300 border border-slate-200/40 dark:border-slate-800 cursor-pointer"
               title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+              suppressHydrationWarning
             >
               {theme === "light" ? "🌙" : "☀️"}
             </button>
@@ -159,6 +160,7 @@ export default function Navbar() {
                   onClick={() => setIsNotifOpen(!isNotifOpen)}
                   className="relative w-9 h-9 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-900/80 dark:hover:bg-slate-855 flex items-center justify-center text-base transition-all duration-300 border border-slate-200/40 dark:border-slate-800 cursor-pointer"
                   title="Notifications"
+                  suppressHydrationWarning
                 >
                   🔔
                   {notifications.length > 0 && (
@@ -219,6 +221,7 @@ export default function Navbar() {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center gap-2 hover:bg-slate-900/5 dark:hover:bg-slate-800/60 px-3 py-1.5 rounded-2xl transition-all duration-200 cursor-pointer focus:outline-none"
                   title="View Profile Details"
+                  suppressHydrationWarning
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm border border-white/10">
                     {user?.name ? user.name[0] : "U"}
@@ -262,6 +265,7 @@ export default function Navbar() {
                         <button
                           onClick={handleLogout}
                           className="w-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white py-3 rounded-2xl text-xs sm:text-sm font-black shadow-sm shadow-red-500/10 hover:shadow-red-500/20 transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                          suppressHydrationWarning
                         >
                           Logout Account
                         </button>
@@ -280,6 +284,7 @@ export default function Navbar() {
               onClick={toggleTheme}
               className="w-9 h-9 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-900/80 dark:hover:bg-slate-850 flex items-center justify-center text-base transition-all duration-300 border border-slate-200/40 dark:border-slate-800 cursor-pointer"
               title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+              suppressHydrationWarning
             >
               {theme === "light" ? "🌙" : "☀️"}
             </button>
@@ -288,6 +293,7 @@ export default function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               className="text-slate-600 dark:text-slate-450 hover:text-slate-950 dark:hover:text-white p-2 rounded-xl focus:outline-none hover:bg-slate-900/5 dark:hover:bg-slate-800/40 transition cursor-pointer"
               aria-label="Toggle menu"
+              suppressHydrationWarning
             >
               {isOpen ? (
                 <span className="text-xl font-black">✕</span>
@@ -331,6 +337,7 @@ export default function Navbar() {
                 <button
                   onClick={handleLogout}
                   className="w-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white py-3 rounded-xl text-sm font-bold shadow-sm shadow-red-500/10 hover:shadow-red-500/20 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                  suppressHydrationWarning
                 >
                   Logout
                 </button>
@@ -357,6 +364,7 @@ export default function Navbar() {
                 ? "text-rose-300 hover:text-white hover:bg-rose-900/50"
                 : "text-slate-400 hover:text-white hover:bg-slate-800/80"
             }`}
+            suppressHydrationWarning
           >
             ✕
           </button>
