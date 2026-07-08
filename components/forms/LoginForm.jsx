@@ -39,10 +39,10 @@ export default function LoginForm() {
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        
+
         {/* Card Container */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-10 transform transition-all duration-300 hover:shadow-2xl">
-          
+
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-650 text-white font-bold text-xl mb-4 shadow-lg shadow-blue-500/25">
@@ -61,7 +61,7 @@ export default function LoginForm() {
               label="Email Address"
               type="email"
               name="email"
-              placeholder="name@example.com"
+              placeholder="Enter your Email"
               value={formData.email}
               onChange={handleChange}
               required
@@ -71,7 +71,7 @@ export default function LoginForm() {
               label="Password"
               type="password"
               name="password"
-              placeholder="••••••••"
+              placeholder="Enter your Password"
               value={formData.password}
               onChange={handleChange}
               required
@@ -106,7 +106,7 @@ export default function LoginForm() {
               </Link>
             </p>
           </div>
-          
+
         </div>
       </div>
     </div>
